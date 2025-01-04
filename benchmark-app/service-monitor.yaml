@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: benchmark-monitor
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: latency-sensitive
+  endpoints:
+  - port: 8080
+    path: /metrics
+    interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: benchmark-monitor-energy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: energy-limit
+  endpoints:
+  - port: 8080
+    path: /metrics
+    interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: benchmark-monitor-resource
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: resource-limit
+  endpoints:
+  - port: 8080
+    path: /metrics
+    interval: 15s
