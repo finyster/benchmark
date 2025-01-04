@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: <your-dockerhub-username>/benchmark-app:latest
+        image: jhlin0925/benchmark-app:latest
         ports:
         - containerPort: 8080
         env:
@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: <your-dockerhub-username>/benchmark-app:latest
+        image: jhlin0925/benchmark-app:latest
         ports:
         - containerPort: 8080
         env:
@@ -80,7 +80,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: <your-dockerhub-username>/benchmark-app:latest
+        image: jhlin0925/benchmark-app:latest
         ports:
         - containerPort: 8080
         env:
