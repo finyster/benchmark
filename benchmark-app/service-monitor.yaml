@@ -1,41 +1,25 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: benchmark-monitor
-  namespace: default
+  name: benchmark-service-monitor
+  namespace: monitoring
+  labels:
+    release: my-kube-prom-stack
 spec:
   selector:
     matchLabels:
-      app: latency-sensitive
+      # 這裡可以指定三個app都抓
+      # 不過因為三個app label不同
+      # 可以直接 matchExpressions
+      # 或是做3個 ServiceMonitor
+      matchExpressions:
+        - { key: app, operator: In, values: ["latency-sensitive-app", "energy-limit-app", "resource-limit-app"] }
+
+  namespaceSelector:
+    matchNames:
+      - default  # 這裡假設三個apps都在default namespace
+
   endpoints:
-  - port: 8080
-    path: /metrics
-    interval: 15s
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: benchmark-monitor-energy
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: energy-limit
-  endpoints:
-  - port: 8080
-    path: /metrics
-    interval: 15s
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: benchmark-monitor-resource
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: resource-limit
-  endpoints:
-  - port: 8080
-    path: /metrics
-    interval: 15s
+    - port: http
+      path: /metrics
+      interval: 15s

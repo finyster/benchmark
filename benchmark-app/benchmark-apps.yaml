@@ -3,93 +3,125 @@ kind: Deployment
 metadata:
   name: latency-sensitive-app
   labels:
-    app: latency-sensitive
+    app: latency-sensitive-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: latency-sensitive
+      app: latency-sensitive-app
   template:
     metadata:
       labels:
-        app: latency-sensitive
+        app: latency-sensitive-app
     spec:
       containers:
-      - name: app
+      - name: latency-container
         image: jhlin0925/benchmark-app:latest
-        ports:
-        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
         env:
         - name: APP_TYPE
           value: "latency-sensitive"
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-          limits:
-            cpu: "500m"
-            memory: "256Mi"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: latency-sensitive-svc
+  labels:
+    app: latency-sensitive-app
+spec:
+  selector:
+    app: latency-sensitive-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: energy-limit-app
   labels:
-    app: energy-limit
+    app: energy-limit-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: energy-limit
+      app: energy-limit-app
   template:
     metadata:
       labels:
-        app: energy-limit
+        app: energy-limit-app
     spec:
       containers:
-      - name: app
+      - name: energy-container
         image: jhlin0925/benchmark-app:latest
-        ports:
-        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
         env:
         - name: APP_TYPE
           value: "energy-limit"
-        resources:
-          requests:
-            cpu: "50m"
-            memory: "64Mi"
-          limits:
-            cpu: "200m"
-            memory: "128Mi"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: energy-limit-svc
+  labels:
+    app: energy-limit-app
+spec:
+  selector:
+    app: energy-limit-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: resource-limit-app
   labels:
-    app: resource-limit
+    app: resource-limit-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: resource-limit
+      app: resource-limit-app
   template:
     metadata:
       labels:
-        app: resource-limit
+        app: resource-limit-app
     spec:
       containers:
-      - name: app
+      - name: resource-container
         image: jhlin0925/benchmark-app:latest
-        ports:
-        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
         env:
         - name: APP_TYPE
           value: "resource-limit"
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "64Mi"
-          limits:
-            cpu: "200m"
-            memory: "128Mi"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: resource-limit-svc
+  labels:
+    app: resource-limit-app
+spec:
+  selector:
+    app: resource-limit-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

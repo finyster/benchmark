@@ -1,32 +1,45 @@
-from flask import Flask
-import time
 import os
-from prometheus_client import start_http_server, Summary, Counter, Gauge
+import time
+from flask import Flask, Response
+# prometheus_client 提供了幫你暴露 metrics 的功能
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Summary, Counter
 
 app = Flask(__name__)
 
-# Prometheus Metrics
-REQUEST_LATENCY = Summary("request_latency_seconds", "Request latency")
-REQUEST_COUNT = Counter("http_requests_total", "Total request count")
-CPU_OPERATIONS = Counter("cpu_operations", "Number of CPU-intensive operations")
+# 定義指標
+REQUEST_LATENCY = Summary('http_request_latency_seconds', 'Request latency')
+REQUEST_COUNT = Counter('http_requests_total', 'Total number of http requests')
+CPU_INTENSIVE_COUNT = Counter('cpu_intensive_operations', 'CPU intensive ops count')
 
-@app.route("/")
+@app.route('/')
 @REQUEST_LATENCY.time()
 def index():
     REQUEST_COUNT.inc()
-    app_type = os.getenv("APP_TYPE", "default")
 
-    if app_type == "latency-sensitive":
-        pass  # 快速回應
-    elif app_type == "energy-limit":
-        for _ in range(1000000):  # 模擬 CPU 密集計算
-            _ = _ * 2
-        CPU_OPERATIONS.inc()
-    elif app_type == "resource-limit":
-        time.sleep(0.2)  # 模擬延遲
+    app_type = os.environ.get('APP_TYPE', 'default')
+    if app_type == 'latency-sensitive':
+        # 模擬延遲敏感 => 盡量不做額外延遲
+        pass
+
+    elif app_type == 'energy-limit':
+        # 模擬需要CPU計算 => 累積計算量
+        CPU_INTENSIVE_COUNT.inc()
+        x = 0
+        for i in range(1000000):
+            x += i
+
+    elif app_type == 'resource-limit':
+        # 模擬做一些IO等待 => sleep 0.2秒
+        time.sleep(0.2)
 
     return f"Hello from {app_type} app!"
 
-if __name__ == "__main__":
-    start_http_server(8000)  # 暴露 metrics 端點
-    app.run(host="0.0.0.0", port=8080)
+# /metrics 路徑：暴露 Prometheus 格式指標
+@app.route('/metrics')
+def metrics():
+    data = generate_latest()
+    return Response(data, mimetype=CONTENT_TYPE_LATEST)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
