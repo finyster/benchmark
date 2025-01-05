@@ -7,19 +7,19 @@ metadata:
     release: my-kube-prom-stack
 spec:
   selector:
-    matchLabels:
-      # 這裡可以指定三個app都抓
-      # 不過因為三個app label不同
-      # 可以直接 matchExpressions
-      # 或是做3個 ServiceMonitor
-      matchExpressions:
-        - { key: app, operator: In, values: ["latency-sensitive-app", "energy-limit-app", "resource-limit-app"] }
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - latency-sensitive-app
+          - energy-limit-app
+          - resource-limit-app
 
   namespaceSelector:
     matchNames:
-      - default  # 這裡假設三個apps都在default namespace
+      - default  # 假設三個 apps 都在 default namespace
 
   endpoints:
-    - port: http
+    - port: http  # 確保 Service 的 port.name 是 "http"
       path: /metrics
       interval: 15s
